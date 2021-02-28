@@ -69,9 +69,9 @@ func Response(ctx *gin.Context, out Output) {
 		out.Builder.Code = constant.StatusOK
 	}
 
-	var http_code = out.Builder.Code
-	if http_code > 600 {
-		http_code = constant.StatusOK
+	httpCode := out.Builder.Code
+	if httpCode > 600 {
+		httpCode = constant.StatusOK
 	}
 
 	if out.Builder.Message == "" {
@@ -82,44 +82,44 @@ func Response(ctx *gin.Context, out Output) {
 
 	switch responseFormat {
 	case FormatJSON:
-		builderResponseJSON(ctx, http_code, out)
+		builderResponseJSON(ctx, httpCode, out)
 	case FormatJSONP:
-		builderResponseJSONP(ctx, http_code, out)
+		builderResponseJSONP(ctx, httpCode, out)
 	case FormatXML:
-		builderResponseXML(ctx, http_code, out)
+		builderResponseXML(ctx, httpCode, out)
 	case FormatYAML:
-		builderResponseYAML(ctx, http_code, out)
+		builderResponseYAML(ctx, httpCode, out)
 	default:
-		builderResponseJSON(ctx, http_code, out)
+		builderResponseJSON(ctx, httpCode, out)
 	}
 }
 
-func builderResponseJSON(ctx *gin.Context, http_code int, out Output) {
-	ctx.JSON(http_code, builderResponse(
+func builderResponseJSON(ctx *gin.Context, httpCode int, out Output) {
+	ctx.JSON(httpCode, builderResponse(
 		out.Builder.Code,
 		out.Builder.Message,
 		out.Builder.Data,
 		out.Builder.ResponseTime))
 }
 
-func builderResponseXML(ctx *gin.Context, http_code int, out Output) {
-	ctx.XML(http_code, builderResponse(
+func builderResponseXML(ctx *gin.Context, httpCode int, out Output) {
+	ctx.XML(httpCode, builderResponse(
 		out.Builder.Code,
 		out.Builder.Message,
 		out.Builder.Data,
 		out.Builder.ResponseTime))
 }
 
-func builderResponseYAML(ctx *gin.Context, http_code int, out Output) {
-	ctx.YAML(http_code, builderResponse(
+func builderResponseYAML(ctx *gin.Context, httpCode int, out Output) {
+	ctx.YAML(httpCode, builderResponse(
 		out.Builder.Code,
 		out.Builder.Message,
 		out.Builder.Data,
 		out.Builder.ResponseTime))
 }
 
-func builderResponseJSONP(ctx *gin.Context, http_code int, out Output) {
-	ctx.JSONP(http_code, builderResponse(
+func builderResponseJSONP(ctx *gin.Context, httpCode int, out Output) {
+	ctx.JSONP(httpCode, builderResponse(
 		out.Builder.Code,
 		out.Builder.Message,
 		out.Builder.Data,
