@@ -5,12 +5,12 @@ import (
 	"github.com/gin-gonic/gin"
 )
 
-func Router(r *gin.RouterGroup)  {
-	home(r)
+func Router(routerGroup *gin.RouterGroup)  {
+	home(routerGroup)
 }
 
-func home(r *gin.RouterGroup) *gin.RouterGroup {
-	router := r.Group("/home")
+func home(routerGroup *gin.RouterGroup) *gin.RouterGroup {
+	router := routerGroup.Group("/home")
 	{
 		router.GET("", api_v1.HomeIndex)
 	}

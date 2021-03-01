@@ -2,6 +2,7 @@ package routers
 
 import (
 	"gin-api/app/middleware/http"
+	"gin-api/app/middleware/logger"
 	"gin-api/internal/env"
 	api_v1 "gin-api/internal/routers/api/v1"
 	"github.com/gin-gonic/gin"
@@ -24,24 +25,25 @@ func InitRouter() *gin.Engine {
 
 	gin.SetMode(environment)
 
-	router := gin.New()
-	router.Use(gin.Logger())
-	router.Use(http.RequestMiddleware())
-	router.Use(gin.Recovery())
+	engine := gin.New()
+	engine.Use(gin.Logger())
+	engine.Use(logger.LoggerToFile())
+	engine.Use(http.RequestMiddleware())
+	engine.Use(gin.Recovery())
 
 	// API 服务路由
-	apiServerRouter(router)
+	apiServerRouter(engine)
 
-	return router
+	return engine
 }
 
-func apiServerRouter(router *gin.Engine)  {
-	r := router.Group("/api")
+func apiServerRouter(engine *gin.Engine)  {
+	router := engine.Group("/api")
 	{
 		// v1
-		group := r.Group("/v1")
+		routerGroup := router.Group("/v1")
 		{
-			api_v1.Router(group)
+			api_v1.Router(routerGroup)
 		}
 	}
 }

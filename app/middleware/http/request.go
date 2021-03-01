@@ -21,7 +21,7 @@ type requestTime struct {
 	EndTime time.Time
 
 	// 请求总时长
-	ResponseTotalTime time.Duration
+	LatencyTime time.Duration
 }
 
 func RequestMiddleware() gin.HandlerFunc {
@@ -43,7 +43,7 @@ func beforeRequestMiddleware(context *gin.Context) {
 func afterRequestMiddleware(context *gin.Context) {
 	// 计算请求时间
 	request.EndTime = time.Now()
-	request.ResponseTotalTime = request.EndTime.Sub(request.StartTime)
+	request.LatencyTime = request.EndTime.Sub(request.StartTime)
 }
 
 // 获取请求信息
