@@ -6,11 +6,7 @@ import (
 )
 
 func HomeIndex(ctx *gin.Context)  {
-	http.Response(ctx, http.Output{
-		Builder: http.Builder{
-			Data: http.H{
-				"message": "hello gin-api.",
-			},
-		},
+	http.SuccessResponse(ctx, http.H{
+		"message": "hello gin-api.",
 	})
 }

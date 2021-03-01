@@ -9,6 +9,13 @@ import (
 	"time"
 )
 
+var (
+	output Output
+	isSetOutput = false
+	responseFormat = DefaultResponseFormat
+	format = []string{FormatJSON, FormatXML, FormatYAML, FormatJSONP}
+)
+
 const (
 	FormatJSON  = "JSON"
 	FormatXML   = "XML"
@@ -18,12 +25,8 @@ const (
 	DefaultResponseFormat = FormatJSON
 )
 
-var responseFormat = DefaultResponseFormat
-
-var format = []string{FormatJSON, FormatXML, FormatYAML, FormatJSONP}
-
 // 获取返回格式类型
-func GetResponseFormat() []string {
+func GetFormat() []string {
 	return format
 }
 
@@ -60,6 +63,9 @@ func (h H) MarshalXML(e *xml.Encoder, start xml.StartElement) error {
 
 // 构建输出数据结构体
 type Builder struct {
+	// HTTP 状态码
+	HttpCode int
+
 	// 业务状态码
 	Code int
 
@@ -80,27 +86,11 @@ type Builder struct {
 			Data: http.H{
 				"message": "hello gin-api.",
 			},
-			Code: 404,
 		},
 	})
  */
-func Response(ctx *gin.Context, out Output) {
-	if out.Format != "" {
-		responseFormat = out.Format
-	}
-
-	if out.Builder.Code == 0 {
-		out.Builder.Code = constant.StatusOK
-	}
-
-	httpCode := out.Builder.Code
-	if httpCode > 600 {
-		httpCode = constant.StatusOK
-	}
-
-	if out.Builder.Message == "" {
-		out.Builder.Message = constant.GetStatusText(out.Builder.Code)
-	}
+func Response(ctx *gin.Context, o Output) {
+	httpCode, out := handlerOutputResponse(o)
 
 	out.Builder.ResponseTime = time.Now().Sub(http.GetRequest().StartTime)
 
@@ -116,6 +106,92 @@ func Response(ctx *gin.Context, out Output) {
 	default:
 		builderResponseJSON(ctx, httpCode, out)
 	}
+}
+
+func handlerOutputResponse(out Output) (httpCode int, o Output) {
+	if out.Format != "" {
+		responseFormat = out.Format
+	}
+
+	if out.Builder.Code == 0 {
+		out.Builder.Code = constant.StatusOK
+	}
+
+	httpCode = out.Builder.Code
+	if httpCode > 600 {
+		if out.Builder.HttpCode == 0 {
+			httpCode = constant.StatusOK
+		} else {
+			httpCode = out.Builder.HttpCode
+		}
+	}
+
+	if out.Builder.Message == "" {
+		out.Builder.Message = constant.GetStatusText(out.Builder.Code)
+	}
+
+	return httpCode, out
+}
+
+func SetOutputResponse(out Output) {
+	_, output = handlerOutputResponse(out)
+	isSetOutput = true
+}
+
+func GetOutputResponse() *Output {
+	return &output
+}
+
+func IsSetOutputResponse() bool {
+	return isSetOutput
+}
+
+/**
+	http.SetOutputResponse(http.Output{Builder: http.Builder{Code: 200}, Format: http.FormatJSON})
+	http.SuccessResponse(ctx, http.H{
+		"message": "hello gin-api.",
+	})
+ */
+func SuccessResponse(ctx *gin.Context, h H)  {
+	var out Output
+	if IsSetOutputResponse() {
+		out = Output{
+			Builder: Builder{
+				Code: output.Builder.Code,
+				Data: h,
+			},
+			Format: output.Format,
+		}
+	} else {
+		out = Output{
+			Builder: Builder{
+				Data: h,
+			},
+		}
+	}
+
+	Response(ctx, out)
+}
+
+func ErrorResponse(ctx *gin.Context, code int)  {
+	var out Output
+	if IsSetOutputResponse() {
+		out = Output{
+			Builder: Builder{
+				Code: code,
+				Data: output.Builder.Data,
+			},
+			Format: output.Format,
+		}
+	} else {
+		out = Output{
+			Builder: Builder{
+				Code: code,
+			},
+		}
+	}
+
+	Response(ctx, out)
 }
 
 func builderResponseJSON(ctx *gin.Context, httpCode int, out Output) {
