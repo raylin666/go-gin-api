@@ -15,6 +15,7 @@ type ConfigYaml struct {
 	Database    map[string]autoload.Database `yaml:"Database"`
 	Redis       map[string]autoload.Redis	 `yaml:"Redis"`
 	Jwt 		autoload.Jwt			     `yaml:"Jwt"`
+	Log 		autoload.Log				 `yaml:"Log"`
 }
 
 func InitConfig() {

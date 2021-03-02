@@ -1,10 +1,16 @@
 package main
 
-import "fmt"
+import (
+	"gin-api/internal/config"
+	"gin-api/pkg/logger"
+)
 
-var house = "Malibu Point 10880, 90265"
+func init()  {
+	config.InitConfig()
+}
 
 func main()  {
-	i := &house
-	fmt.Println(*i)
+	logger.NewWriteInstance("app").WithFields(logger.Fields{
+		"msg": "I'm logger",
+	}.Fields()).Info("hhh")
 }
