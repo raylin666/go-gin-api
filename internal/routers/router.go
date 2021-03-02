@@ -2,6 +2,7 @@ package routers
 
 import (
 	"gin-api/app/middleware/http"
+	"gin-api/app/middleware/logger"
 	"gin-api/internal/env"
 	api_v1 "gin-api/internal/routers/api/v1"
 	"github.com/gin-gonic/gin"
@@ -26,7 +27,7 @@ func InitRouter() *gin.Engine {
 
 	engine := gin.New()
 	engine.Use(gin.Logger())
-	// engine.Use(logger.LoggerToFile())
+	engine.Use(logger.LoggerWrite())
 	engine.Use(http.RequestMiddleware())
 	engine.Use(gin.Recovery())
 

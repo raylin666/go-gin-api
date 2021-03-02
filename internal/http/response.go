@@ -65,16 +65,12 @@ func (h H) MarshalXML(e *xml.Encoder, start xml.StartElement) error {
 type Builder struct {
 	// HTTP 状态码
 	HttpCode int
-
 	// 业务状态码
 	Code int
-
 	// 状态码提示信息
 	Message string
-
 	// 响应内容信息
 	Data H
-
 	// 响应总时长
 	ResponseTime time.Duration
 }
