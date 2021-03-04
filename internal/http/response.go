@@ -10,7 +10,7 @@ import (
 )
 
 var (
-	output Output
+	output *Output
 	isSetOutput = false
 	responseFormat = DefaultResponseFormat
 	format = []string{FormatJSON, FormatXML, FormatYAML, FormatJSONP}
@@ -31,35 +31,13 @@ func GetFormat() []string {
 }
 
 type Output struct {
-	Builder Builder
+	Builder *Builder
 
 	// 输出类型, 例如：JSON、XML、YAML
 	Format string
 }
 
 type H map[string]interface{}
-
-// MarshalXML allows type H to be used with xml.Marshal.
-func (h H) MarshalXML(e *xml.Encoder, start xml.StartElement) error {
-	start.Name = xml.Name{
-		Space: "",
-		Local: "map",
-	}
-	if err := e.EncodeToken(start); err != nil {
-		return err
-	}
-	for key, value := range h {
-		elem := xml.StartElement{
-			Name: xml.Name{Space: "", Local: key},
-			Attr: []xml.Attr{},
-		}
-		if err := e.EncodeElement(value, elem); err != nil {
-			return err
-		}
-	}
-
-	return e.EncodeToken(xml.EndElement{Name: start.Name})
-}
 
 // 构建输出数据结构体
 type Builder struct {
@@ -85,7 +63,7 @@ type Builder struct {
 		},
 	})
  */
-func Response(ctx *gin.Context, o Output) {
+func Response(ctx *gin.Context, o *Output) {
 	httpCode, out := handlerOutputResponse(o)
 
 	out.Builder.ResponseTime = time.Now().Sub(http.GetRequest().StartTime)
@@ -104,7 +82,7 @@ func Response(ctx *gin.Context, o Output) {
 	}
 }
 
-func handlerOutputResponse(out Output) (httpCode int, o Output) {
+func handlerOutputResponse(out *Output) (httpCode int, o *Output) {
 	if out.Format != "" {
 		responseFormat = out.Format
 	}
@@ -129,13 +107,13 @@ func handlerOutputResponse(out Output) (httpCode int, o Output) {
 	return httpCode, out
 }
 
-func SetOutputResponse(out Output) {
+func SetOutputResponse(out *Output) {
 	_, output = handlerOutputResponse(out)
 	isSetOutput = true
 }
 
 func GetOutputResponse() *Output {
-	return &output
+	return output
 }
 
 func IsSetOutputResponse() bool {
@@ -149,18 +127,18 @@ func IsSetOutputResponse() bool {
 	})
  */
 func SuccessResponse(ctx *gin.Context, h H)  {
-	var out Output
+	var out *Output
 	if IsSetOutputResponse() {
-		out = Output{
-			Builder: Builder{
+		out = &Output{
+			Builder: &Builder{
 				Code: output.Builder.Code,
 				Data: h,
 			},
 			Format: output.Format,
 		}
 	} else {
-		out = Output{
-			Builder: Builder{
+		out = &Output{
+			Builder: &Builder{
 				Data: h,
 			},
 		}
@@ -170,18 +148,18 @@ func SuccessResponse(ctx *gin.Context, h H)  {
 }
 
 func ErrorResponse(ctx *gin.Context, code int)  {
-	var out Output
+	var out *Output
 	if IsSetOutputResponse() {
-		out = Output{
-			Builder: Builder{
+		out = &Output{
+			Builder: &Builder{
 				Code: code,
 				Data: output.Builder.Data,
 			},
 			Format: output.Format,
 		}
 	} else {
-		out = Output{
-			Builder: Builder{
+		out = &Output{
+			Builder: &Builder{
 				Code: code,
 			},
 		}
@@ -190,7 +168,29 @@ func ErrorResponse(ctx *gin.Context, code int)  {
 	Response(ctx, out)
 }
 
-func builderResponseJSON(ctx *gin.Context, httpCode int, out Output) {
+// MarshalXML allows type H to be used with xml.Marshal.
+func (h H) MarshalXML(e *xml.Encoder, start xml.StartElement) error {
+	start.Name = xml.Name{
+		Space: "",
+		Local: "map",
+	}
+	if err := e.EncodeToken(start); err != nil {
+		return err
+	}
+	for key, value := range h {
+		elem := xml.StartElement{
+			Name: xml.Name{Space: "", Local: key},
+			Attr: []xml.Attr{},
+		}
+		if err := e.EncodeElement(value, elem); err != nil {
+			return err
+		}
+	}
+
+	return e.EncodeToken(xml.EndElement{Name: start.Name})
+}
+
+func builderResponseJSON(ctx *gin.Context, httpCode int, out *Output) {
 	ctx.JSON(httpCode, builderResponse(
 		out.Builder.Code,
 		out.Builder.Message,
@@ -198,7 +198,7 @@ func builderResponseJSON(ctx *gin.Context, httpCode int, out Output) {
 		out.Builder.ResponseTime))
 }
 
-func builderResponseXML(ctx *gin.Context, httpCode int, out Output) {
+func builderResponseXML(ctx *gin.Context, httpCode int, out *Output) {
 	ctx.XML(httpCode, builderResponse(
 		out.Builder.Code,
 		out.Builder.Message,
@@ -206,7 +206,7 @@ func builderResponseXML(ctx *gin.Context, httpCode int, out Output) {
 		out.Builder.ResponseTime))
 }
 
-func builderResponseYAML(ctx *gin.Context, httpCode int, out Output) {
+func builderResponseYAML(ctx *gin.Context, httpCode int, out *Output) {
 	ctx.YAML(httpCode, builderResponse(
 		out.Builder.Code,
 		out.Builder.Message,
@@ -214,7 +214,7 @@ func builderResponseYAML(ctx *gin.Context, httpCode int, out Output) {
 		out.Builder.ResponseTime))
 }
 
-func builderResponseJSONP(ctx *gin.Context, httpCode int, out Output) {
+func builderResponseJSONP(ctx *gin.Context, httpCode int, out *Output) {
 	ctx.JSONP(httpCode, builderResponse(
 		out.Builder.Code,
 		out.Builder.Message,
@@ -223,8 +223,8 @@ func builderResponseJSONP(ctx *gin.Context, httpCode int, out Output) {
 }
 
 // 构建响应数据
-func builderResponse(code int, message string, data H, responseTime time.Duration) *H {
-	return &H{
+func builderResponse(code int, message string, data H, responseTime time.Duration) H {
+	return H{
 		"code":         code,
 		"message":      message,
 		"data":         data,

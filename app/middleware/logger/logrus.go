@@ -2,6 +2,7 @@ package logger
 
 import (
 	"fmt"
+	"gin-api/internal/constant"
 	"gin-api/pkg/logger"
 	"github.com/gin-gonic/gin"
 	"time"
@@ -35,9 +36,7 @@ func LoggerWrite() gin.HandlerFunc {
 		clientIP := c.ClientIP()
 
 		// 日志格式
-		logger.Logger{
-			OpenLFSHOOK: true,
-		}.Write("request").WithFields(logger.Fields{
+		logger.NewWrite(constant.LOG_REQUEST).WithFields(logger.Fields{
 			"status_code"  : statusCode,
 			"latency_time" : fmt.Sprintf("%s", latencyTime),
 			"client_ip"    : clientIP,

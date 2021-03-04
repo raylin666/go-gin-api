@@ -3,6 +3,7 @@ package main
 import (
 	"fmt"
 	"gin-api/internal/config"
+	"gin-api/internal/constant"
 	"gin-api/internal/env"
 	"gin-api/internal/routers"
 	"gin-api/pkg/logger"
@@ -17,6 +18,7 @@ func init()  {
 }
 
 func main()  {
+
 	router := routers.InitRouter()
 
 	host := config.Get().Http.Host
@@ -30,7 +32,7 @@ func main()  {
 		MaxHeaderBytes: 1 << 20,
 	}
 
-	logger.NewMuWrite(logger.DefaultFileName).Info(fmt.Sprintf("start http server listening %s:%d", host, port))
+	logger.NewWrite(constant.LOG_APP).Info(fmt.Sprintf("start http server listening %s:%d", host, port))
 
 	err := server.ListenAndServe()
 	if err != nil {
