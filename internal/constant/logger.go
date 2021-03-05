@@ -6,5 +6,6 @@ const (
 	LOG_DB  = "database"
 	LOG_REDIS = "redis"
 	LOG_REQUEST = "request"
+	LOG_SQL = "sql"
 )
 

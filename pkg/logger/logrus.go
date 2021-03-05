@@ -61,6 +61,7 @@ func register() map[string]*Logger {
 		constant.LOG_DB:        instance(constant.LOG_DB),
 		constant.LOG_REDIS:     instance(constant.LOG_REDIS),
 		constant.LOG_REQUEST:   instance(constant.LOG_REQUEST),
+		constant.LOG_SQL:   	instance(constant.LOG_SQL),
 	}
 
 	return loggerWriteMaps

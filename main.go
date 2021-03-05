@@ -6,6 +6,8 @@ import (
 	"gin-api/internal/constant"
 	"gin-api/internal/env"
 	"gin-api/internal/routers"
+	"gin-api/pkg/cache"
+	"gin-api/pkg/database"
 	"gin-api/pkg/logger"
 	"net/http"
 	"time"
@@ -15,6 +17,8 @@ func init()  {
 	config.InitConfig()
 	env.InitEnv()
 	logger.InitLogger()
+	database.InitDatabase()
+	cache.InitRedis()
 }
 
 func main()  {
