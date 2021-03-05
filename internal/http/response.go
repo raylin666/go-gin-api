@@ -74,9 +74,21 @@ func Response(ctx *gin.Context, out *Output)  {
 	}
 }
 
-func (output Output) Success(ctx *gin.Context, h H) {
+func Set(builder Builder, format string) *Output {
+	return &Output{
+		Builder: builder,
+		Format: format,
+	}
+}
+
+func (output *Output) Success(ctx *gin.Context, h H) {
 	output.Builder.Data = h
-	Response(ctx, &output)
+	Response(ctx, output)
+}
+
+func (output *Output) Error(ctx *gin.Context, code int) {
+	output.Builder.Code = code
+	Response(ctx, output)
 }
 
 func SuccessResponse(ctx *gin.Context, h H) {
@@ -87,11 +99,6 @@ func SuccessResponse(ctx *gin.Context, h H) {
 	}
 
 	Response(ctx, output)
-}
-
-func (output Output) Error(ctx *gin.Context, code int) {
-	output.Builder.Code = code
-	Response(ctx, &output)
 }
 
 func ErrorResponse(ctx *gin.Context, code int) {
