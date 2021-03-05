@@ -8,9 +8,9 @@ import (
 )
 
 const (
-	ENVIRONMENT_DEV = "dev"
+	ENVIRONMENT_DEV  = "dev"
 	ENVIRONMENT_TEST = "test"
-	ENVIRONMENT_PRE = "pre"
+	ENVIRONMENT_PRE  = "pre"
 	ENVIRONMENT_PROD = "prod"
 )
 
@@ -58,7 +58,7 @@ func (e *environment) IsProd() bool {
 	return e.value == ENVIRONMENT_PROD
 }
 
-func InitEnv()  {
+func InitEnv() {
 	// go run main.go -env=prod
 	env := flag.String("env", "", "请输入运行环境:\n dev:开发环境\n test:测试环境\n pre:预上线环境\n prod:正式环境\n")
 	flag.Parse()
@@ -80,4 +80,3 @@ func InitEnv()  {
 		active = &environment{value: config_env}
 	}
 }
-

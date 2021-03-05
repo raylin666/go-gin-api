@@ -20,7 +20,7 @@ func CreateDirectory(dir string) {
 }
 
 // 文件大小
-func GetFileSize(file string) int64 {
+func FileSize(file string) int64 {
 	f, e := os.Stat(file)
 	if e != nil {
 		fmt.Println(e.Error())
@@ -30,7 +30,7 @@ func GetFileSize(file string) int64 {
 }
 
 // 文件是否存在
-func ExistFile(path string) bool {
+func FileExist(path string) bool {
 	_, err := os.Stat(path)
 	return err == nil || os.IsExist(err)
 }

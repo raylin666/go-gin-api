@@ -13,26 +13,30 @@ import (
 	"time"
 )
 
-func init()  {
+func init() {
+	// 配置初始化
 	config.InitConfig()
+	// 环境初始化
 	env.InitEnv()
+	// 日志初始化
 	logger.InitLogger()
+	// 数据库初始化
 	database.InitDatabase()
+	// 缓存初始化
 	cache.InitRedis()
 }
 
-func main()  {
-
+func main() {
 	router := routers.InitRouter()
 
 	host := config.Get().Http.Host
 	port := config.Get().Http.Port
 
 	server := &http.Server{
-		Addr: fmt.Sprintf("%s:%d", host, port),
-		Handler: router,
-		ReadTimeout: 60 * time.Second,
-		WriteTimeout: 60 * time.Second,
+		Addr:           fmt.Sprintf("%s:%d", host, port),
+		Handler:        router,
+		ReadTimeout:    60 * time.Second,
+		WriteTimeout:   60 * time.Second,
 		MaxHeaderBytes: 1 << 20,
 	}
 
