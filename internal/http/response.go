@@ -6,10 +6,12 @@ import (
 	"gin-api/app/middleware/http"
 	"gin-api/internal/constant"
 	"github.com/gin-gonic/gin"
+	"sync"
 	"time"
 )
 
 var (
+	outputPool *sync.Pool
 	// 获取返回格式类型集合
 	Format = []string{FormatJSON, FormatXML, FormatYAML, FormatJSONP}
 )
@@ -45,6 +47,23 @@ type Builder struct {
 	ResponseTime time.Duration
 }
 
+func init()  {
+	outputPool = &sync.Pool{
+		New: func() interface {} {
+			return new(Output)
+		},
+	}
+}
+
+func (output *Output) reset() {
+	output.Format = FormatJSON
+	output.Builder.HttpCode = 0
+	output.Builder.Code = 0
+	output.Builder.Message = ""
+	output.Builder.Data = map[string]interface{}{}
+	output.Builder.ResponseTime = 0
+}
+
 // 响应数据
 /**
 	http.Response(ctx, http.Output{
@@ -72,13 +91,16 @@ func Response(ctx *gin.Context, out *Output)  {
 	default:
 		builderResponseJSON(ctx, code, output)
 	}
+
+	output.reset()
 }
 
 func Set(builder Builder, format string) *Output {
-	return &Output{
-		Builder: builder,
-		Format: format,
-	}
+	output := outputPool.Get().(*Output)
+	output.Builder = builder
+	output.Format = format
+	outputPool.Put(output)
+	return output
 }
 
 func (output *Output) Success(ctx *gin.Context, h H) {
@@ -92,22 +114,20 @@ func (output *Output) Error(ctx *gin.Context, code int) {
 }
 
 func SuccessResponse(ctx *gin.Context, h H) {
-	output := &Output{
-		Builder: Builder{
-			Data: h,
-		},
+	output := outputPool.Get().(*Output)
+	output.Builder = Builder{
+		Data: h,
 	}
-
+	outputPool.Put(output)
 	Response(ctx, output)
 }
 
 func ErrorResponse(ctx *gin.Context, code int) {
-	output := &Output{
-		Builder: Builder{
-			Code: code,
-		},
+	output := outputPool.Get().(*Output)
+	output.Builder = Builder{
+		Code: code,
 	}
-
+	outputPool.Put(output)
 	Response(ctx, output)
 }
 
