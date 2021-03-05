@@ -18,6 +18,7 @@ const (
 )
 
 var (
+	c *conf
 	// 日志写入实例集合
 	loggerWriteMaps map[string]*Logger
 )
@@ -31,15 +32,23 @@ func (fields Fields) Fields() logrus.Fields {
 type Logger struct {
 	// 日志实例
 	Instance *logrus.Logger
-	// 是否并发写入文件及控制台打印
-	IsMulti bool
 	// 文件名称(文件写入时存在值)
 	FileName string
+	Conf     *conf
+}
+
+type conf struct {
+	level  logrus.Level
+	format logrus.Formatter
+	// 是否并发写入文件及控制台打印
+	multi bool
 }
 
 func InitLogger() {
 	// 创建文件夹
 	utils.CreateDirectory(config.Get().Log.Path)
+
+	c = &conf{}
 
 	// 注册日志写实例
 	register()
@@ -47,11 +56,11 @@ func InitLogger() {
 
 func register() map[string]*Logger {
 	loggerWriteMaps = map[string]*Logger{
-		constant.LOG_MULTI_APP: instance(constant.LOG_MULTI_APP, true).logger(),
-		constant.LOG_APP:       instance(constant.LOG_APP, false).logger(),
-		constant.LOG_DB:        instance(constant.LOG_DB, false).logger(),
-		constant.LOG_REDIS:     instance(constant.LOG_REDIS, false).logger(),
-		constant.LOG_REQUEST:   instance(constant.LOG_REQUEST, false).logger(),
+		constant.LOG_MULTI_APP: instanceMulti(constant.LOG_MULTI_APP),
+		constant.LOG_APP:       instance(constant.LOG_APP),
+		constant.LOG_DB:        instance(constant.LOG_DB),
+		constant.LOG_REDIS:     instance(constant.LOG_REDIS),
+		constant.LOG_REQUEST:   instance(constant.LOG_REQUEST),
 	}
 
 	return loggerWriteMaps
@@ -76,25 +85,42 @@ func NewWrite(filename string) *logrus.Logger {
 	return logger.Instance
 }
 
-// 创建新的实例
-func instance(filename string, multi bool) *Logger {
-	return &Logger{
-		Instance: logrus.New(),
-		FileName: filename,
-		IsMulti:  multi,
-	}
+func instance(filename string) *Logger {
+	return c.create(filename)
 }
 
-// Logger 实例初始化配置
-func (logger *Logger) logger() *Logger {
-	// 设置日志级别
-	logger.Instance.SetLevel(logrus.DebugLevel)
-	// 设置日志格式
-	logger.Instance.SetFormatter(&logrus.JSONFormatter{
-		TimestampFormat: TimestampFormat,
-	})
+func instanceMulti(filename string) *Logger {
+	c.multi = true
+	return c.create(filename)
+}
 
-	file := path.Join(config.Get().Log.Path, logger.FileName)
+func (c *conf) reset()  {
+	c.multi = false
+	c.format = nil
+	c.level = 0
+}
+
+// 创建 Logger 实例 初始化配置
+func (c *conf) create(filename string) *Logger {
+	logger := logrus.New()
+
+	// 设置日志级别
+	if c.level == 0 {
+		logger.SetLevel(logrus.DebugLevel)
+	} else {
+		logger.SetLevel(c.level)
+	}
+
+	// 设置日志格式
+	if c.format == nil {
+		logger.SetFormatter(&logrus.JSONFormatter{
+			TimestampFormat: TimestampFormat,
+		})
+	} else {
+		logger.SetFormatter(c.format)
+	}
+
+	file := path.Join(config.Get().Log.Path, filename)
 	// 设置 rotatelogs
 	logWriter, err := rotatelogs.New(
 		// 分割后的文件名称
@@ -108,14 +134,22 @@ func (logger *Logger) logger() *Logger {
 	)
 
 	if err == nil {
-		if logger.IsMulti {
-			logger.Instance.SetOutput(io.MultiWriter(os.Stdout, logWriter))
+		if c.multi {
+			logger.SetOutput(io.MultiWriter(os.Stdout, logWriter))
 		} else {
-			logger.Instance.SetOutput(logWriter)
+			logger.SetOutput(logWriter)
 		}
 	} else {
-		log.Printf("(%s) failed to create rotatelogs: %s", logger.FileName, err)
+		log.Printf("(%s) failed to create rotatelogs: %s", filename, err)
 	}
 
-	return logger
+	new_logger := &Logger{
+		Instance: logger,
+		FileName: filename,
+		Conf:     c,
+	}
+
+	c.reset()
+
+	return new_logger
 }
