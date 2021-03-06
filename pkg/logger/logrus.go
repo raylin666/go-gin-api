@@ -34,6 +34,7 @@ type Logger struct {
 	Instance *logrus.Logger
 	// 文件名称(文件写入时存在值)
 	FileName string
+	// 配置信息
 	Conf     *conf
 }
 
