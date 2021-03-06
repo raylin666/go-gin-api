@@ -16,6 +16,6 @@ func UserInfo(ctx *utils.Context, uid uint64) *service.ServiceResponse {
 	}
 
 	return service.Success(http.H{
-		"data": user,
+		"user": user,
 	})
 }
