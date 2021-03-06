@@ -9,8 +9,8 @@ import (
 )
 
 const (
-	callBackBeforeName = "core:before"
-	callBackAfterName  = "core:after"
+	callBackBeforeName = "database:before"
+	callBackAfterName  = "database:after"
 	startTime          = "_start_time"
 )
 
@@ -64,7 +64,7 @@ func after(db *gorm.DB) {
 		"rows": db.Statement.RowsAffected,
 		"stack": utils.FileWithLineNum(),
 		"costSeconds": time.Since(ts).Seconds(),
-	}.Fields())
+	}.Fields()).Info()
 
 	return
 }

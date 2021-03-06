@@ -36,8 +36,8 @@ func InitDatabase() {
 			mysql.Open(dsn),
 			&gorm.Config{
 				NamingStrategy: schema.NamingStrategy{
-					TablePrefix:   value.Prefix,
-					SingularTable: true,
+					TablePrefix:   value.Prefix,	// 设置表前缀
+					SingularTable: true,			// 全局禁用表名复数
 				},
 			})
 
