@@ -5,7 +5,7 @@ import (
 	"fmt"
 	"gin-api/app/middleware/http"
 	"gin-api/internal/constant"
-	"github.com/gin-gonic/gin"
+	"gin-api/internal/utils"
 	"sync"
 	"time"
 )
@@ -74,7 +74,7 @@ func (output *Output) reset() {
 		},
 	})
 */
-func Response(ctx *gin.Context, out *Output)  {
+func Response(ctx *utils.Context, out *Output)  {
 	code, output := handlerResponse(out)
 
 	output.Builder.ResponseTime = time.Now().Sub(http.GetRequest().StartTime)
@@ -103,17 +103,17 @@ func Set(builder Builder, format string) *Output {
 	return output
 }
 
-func (output *Output) Success(ctx *gin.Context, h H) {
+func (output *Output) Success(ctx *utils.Context, h H) {
 	output.Builder.Data = h
 	Response(ctx, output)
 }
 
-func (output *Output) Error(ctx *gin.Context, code int) {
+func (output *Output) Error(ctx *utils.Context, code int) {
 	output.Builder.Code = code
 	Response(ctx, output)
 }
 
-func SuccessResponse(ctx *gin.Context, h H) {
+func SuccessResponse(ctx *utils.Context, h H) {
 	output := outputPool.Get().(*Output)
 	output.Builder = Builder{
 		Data: h,
@@ -122,7 +122,7 @@ func SuccessResponse(ctx *gin.Context, h H) {
 	Response(ctx, output)
 }
 
-func ErrorResponse(ctx *gin.Context, code int) {
+func ErrorResponse(ctx *utils.Context, code int) {
 	output := outputPool.Get().(*Output)
 	output.Builder = Builder{
 		Code: code,
@@ -175,7 +175,7 @@ func (h H) MarshalXML(e *xml.Encoder, start xml.StartElement) error {
 	return e.EncodeToken(xml.EndElement{Name: start.Name})
 }
 
-func builderResponseJSON(ctx *gin.Context, code int, out *Output) {
+func builderResponseJSON(ctx *utils.Context, code int, out *Output) {
 	ctx.JSON(code, builderResponse(
 		out.Builder.Code,
 		out.Builder.Message,
@@ -183,7 +183,7 @@ func builderResponseJSON(ctx *gin.Context, code int, out *Output) {
 		out.Builder.ResponseTime))
 }
 
-func builderResponseXML(ctx *gin.Context, code int, out *Output) {
+func builderResponseXML(ctx *utils.Context, code int, out *Output) {
 	ctx.XML(code, builderResponse(
 		out.Builder.Code,
 		out.Builder.Message,
@@ -191,7 +191,7 @@ func builderResponseXML(ctx *gin.Context, code int, out *Output) {
 		out.Builder.ResponseTime))
 }
 
-func builderResponseYAML(ctx *gin.Context, code int, out *Output) {
+func builderResponseYAML(ctx *utils.Context, code int, out *Output) {
 	ctx.YAML(code, builderResponse(
 		out.Builder.Code,
 		out.Builder.Message,
@@ -199,7 +199,7 @@ func builderResponseYAML(ctx *gin.Context, code int, out *Output) {
 		out.Builder.ResponseTime))
 }
 
-func builderResponseJSONP(ctx *gin.Context, code int, out *Output) {
+func builderResponseJSONP(ctx *utils.Context, code int, out *Output) {
 	ctx.JSONP(code, builderResponse(
 		out.Builder.Code,
 		out.Builder.Message,

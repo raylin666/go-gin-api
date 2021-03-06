@@ -1,14 +1,12 @@
-package apiv1
+package v1
 
 import (
-	"gin-api/app/model/user"
 	"gin-api/internal/http"
-	"github.com/gin-gonic/gin"
+	"gin-api/internal/utils"
 )
 
-func HomeIndex(ctx *gin.Context)  {
+func HomeIndex(ctx *utils.Context)  {
 	http.SuccessResponse(ctx, http.H{
 		"message": "hello gin-api.",
-		"data": user.GetUserOne(1),
 	})
 }
