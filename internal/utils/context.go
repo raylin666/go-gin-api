@@ -15,12 +15,12 @@ type Context struct {
 type ContextHandlerFunc func(ctx *Context)
 
 // 设置用户信息
-func SetContextUser(ctx *Context, user []userModel.User) {
+func (ctx *Context) SetContextUser(user []userModel.User) {
 	ctx.Set("USER", user)
 }
 
 // 获取用户信息
-func GetContextUser(ctx *Context) []userModel.User {
+func (ctx *Context) GetContextUser() []userModel.User {
 	return ctx.User
 }
 

@@ -30,7 +30,7 @@ func JWT() utils.ContextHandlerFunc {
 				if user == nil {
 					code = constant.StatusUserNotFoundError
 				} else {
-					utils.SetContextUser(ctx, user)
+					ctx.SetContextUser(user)
 				}
 			}
 		}

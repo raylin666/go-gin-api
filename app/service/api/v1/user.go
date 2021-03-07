@@ -10,7 +10,7 @@ import (
 func UserInfo(ctx *utils.Context, uid uint64) *service.ServiceResponse {
 	var user []userModel.User
 	if uid <= 0 {
-		user = utils.GetContextUser(ctx)
+		user = ctx.GetContextUser()
 	} else {
 		user = userModel.GetUserOne(uid)
 	}
