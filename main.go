@@ -1,6 +1,7 @@
 package main
 
 import (
+	"context"
 	"fmt"
 	"gin-api/internal/config"
 	"gin-api/internal/constant"
@@ -9,6 +10,7 @@ import (
 	"gin-api/pkg/cache"
 	"gin-api/pkg/database"
 	"gin-api/pkg/logger"
+	"gin-api/pkg/shutdown"
 	"net/http"
 	"time"
 )
@@ -42,8 +44,42 @@ func main() {
 
 	logger.NewWrite(constant.LOG_APP).Info(fmt.Sprintf("start http server listening %s:%d", host, port))
 
-	err := server.ListenAndServe()
-	if err != nil {
-		panic("HTTP 服务启动失败")
-	}
+	go func() {
+		if err := server.ListenAndServe(); err != nil && err != http.ErrServerClosed {
+			logger.NewWrite(constant.LOG_MULTI_APP).Fatal("http server startup err", err)
+		}
+	}()
+
+	// 优雅关闭
+	shutdown.NewHook().Close(
+		// 关闭 HTTP 服务
+		func() {
+			ctx, cancel := context.WithTimeout(context.Background(), 10*time.Second)
+			defer cancel()
+
+			if err := server.Shutdown(ctx); err != nil {
+				logger.NewWrite(constant.LOG_MULTI_APP).Error("server shutdown err", err)
+			} else {
+				logger.NewWrite(constant.LOG_MULTI_APP).Info("server shutdown success")
+			}
+		},
+
+		// 关闭 Database
+		func() {
+			if err := database.CloseAll(); err != nil {
+				logger.NewWrite(constant.LOG_MULTI_APP).Error("database close err", err)
+			} else {
+				logger.NewWrite(constant.LOG_MULTI_APP).Info("database close success")
+			}
+		},
+
+		// 关闭缓存
+		func() {
+			if err := cache.CloseAll(); err != nil {
+				logger.NewWrite(constant.LOG_MULTI_APP).Error("cache close err", err)
+			} else {
+				logger.NewWrite(constant.LOG_MULTI_APP).Info("cache close success")
+			}
+		},
+	)
 }

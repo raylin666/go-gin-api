@@ -45,13 +45,13 @@ func InitDatabase() {
 			log.Panic(err)
 		}
 
-		db, _ := conn.DB()
+		sqlDb, _ := conn.DB()
 		// 设置最大连接数 用于设置闲置的连接数.设置闲置的连接数则当开启的一个连接使用完成后可以放在池里等候下一次使用。
-		db.SetMaxIdleConns(value.MaxIdleConn)
+		sqlDb.SetMaxIdleConns(value.MaxIdleConn)
 		// 设置连接池 用于设置最大打开的连接数，默认值为0表示不限制.设置最大的连接数，可以避免并发太高导致连接mysql出现too many connections的错误。
-		db.SetMaxOpenConns(value.MaxOpenConn)
+		sqlDb.SetMaxOpenConns(value.MaxOpenConn)
 		// 设置最大连接超时
-		db.SetConnMaxLifetime(time.Minute * value.MaxLifeTime)
+		sqlDb.SetConnMaxLifetime(time.Minute * value.MaxLifeTime)
 
 		// 使用插件
 		_ = conn.Use(&TracePlugin{})
@@ -62,4 +62,20 @@ func InitDatabase() {
 
 func GetDB(connection string) *gorm.DB {
 	return database[connection]
+}
+
+func Close(connection string) error {
+	sqlDb, _ := database[connection].DB()
+	return sqlDb.Close()
+}
+
+func CloseAll() error {
+	for _, connection := range database {
+		sqlDb, _ := connection.DB()
+		if err := sqlDb.Close(); err != nil {
+			return err
+		}
+	}
+
+	return nil
 }
