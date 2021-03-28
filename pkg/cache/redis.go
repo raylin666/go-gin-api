@@ -14,9 +14,9 @@ var (
 )
 
 func InitRedis() {
-	rds = make(map[string]*redis.Client)
-
 	c := config.Get().Redis
+
+	rds = make(map[string]*redis.Client, len(c))
 
 	for key, value := range c {
 		conn := redis.NewClient(&redis.Options{

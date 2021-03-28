@@ -19,9 +19,9 @@ func InitDatabase() {
 		conn *gorm.DB
 	)
 
-	database = make(map[string]*gorm.DB)
-
 	c := config.Get().Database
+
+	database = make(map[string]*gorm.DB, len(c))
 
 	for key, value := range c {
 		var dsn = fmt.Sprintf("%s:%s@tcp(%s:%d)/%s?charset=%s&parseTime=True&loc=Local",
