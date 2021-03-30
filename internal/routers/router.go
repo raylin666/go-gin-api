@@ -13,13 +13,10 @@ func InitRouter() *gin.Engine {
 	switch env.GetEnvironment().Value() {
 	case env.ENVIRONMENT_PROD:
 		environment = gin.ReleaseMode
-		break
 	case env.ENVIRONMENT_DEV:
 		environment = gin.DebugMode
-		break
 	case env.ENVIRONMENT_TEST:
 		environment = gin.ReleaseMode
-		break
 	default:
 	}
 
