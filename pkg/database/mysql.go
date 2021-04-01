@@ -6,7 +6,6 @@ import (
 	"gorm.io/driver/mysql"
 	"gorm.io/gorm"
 	"gorm.io/gorm/schema"
-	"log"
 	"strings"
 	"time"
 )
@@ -42,7 +41,7 @@ func InitDatabase() {
 			})
 
 		if err != nil {
-			log.Panic(err)
+			panic(err)
 		}
 
 		sqlDb, _ := conn.DB()
