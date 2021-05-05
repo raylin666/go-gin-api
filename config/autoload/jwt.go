@@ -1,5 +1,5 @@
 package autoload
 
 type Jwt struct {
-	Secret []byte `yaml:"Secret"`
+	Secret string `yaml:"Secret"`
 }

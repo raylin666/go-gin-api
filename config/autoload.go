@@ -6,9 +6,9 @@ import (
 	"io/ioutil"
 )
 
-var configs = new(Config)
+var configs = new(config)
 
-type Config struct {
+type config struct {
 	Environment string                       `yaml:"Environment"`
 	App         autoload.App                 `yaml:"App"`
 	Http        autoload.Http                `yaml:"Http"`
@@ -19,8 +19,8 @@ type Config struct {
 }
 
 // 初始化加载配置文件
-func InitAutoloadConfig(envFileName string)  {
-	cYaml, err := ioutil.ReadFile(envFileName)
+func InitAutoloadConfig(ymlEnvFileName string)  {
+	cYaml, err := ioutil.ReadFile(ymlEnvFileName)
 	if err != nil {
 		panic(err)
 	}
@@ -29,6 +29,6 @@ func InitAutoloadConfig(envFileName string)  {
 }
 
 // 获取配置项
-func Get() *Config {
+func Get() *config {
 	return configs
 }
