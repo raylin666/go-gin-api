@@ -1,4 +1,4 @@
-module github.com/raylin666/gin-api
+module github.com/raylin666/go-gin-api
 
 go 1.16
 
