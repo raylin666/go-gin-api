@@ -18,7 +18,7 @@ type Config struct {
 	Logs 		autoload.Logs				 `yaml:"Logs"`
 }
 
-// 初始化加载配置文件
+// 初始化加载配置文件, ymlEnvFileName 文件可复制该扩展包根目录的 .env.yml.default 文件进行修改, 它包含了所有配置项。
 func InitAutoloadConfig(ymlEnvFileName string)  {
 	cYaml, err := ioutil.ReadFile(ymlEnvFileName)
 	if err != nil {
