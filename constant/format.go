@@ -1,4 +1,4 @@
-package consts
+package constant
 
 const (
 	FORMAT_JSON  = "JSON"

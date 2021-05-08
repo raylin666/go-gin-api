@@ -3,7 +3,6 @@ package context
 import (
 	"encoding/xml"
 	"github.com/raylin666/go-gin-api/constant"
-	"github.com/raylin666/go-gin-api/consts"
 	"time"
 )
 
@@ -110,12 +109,12 @@ func (response *ResponseBuilder) GetResponseTime() time.Duration {
 
 func (response *ResponseBuilder) WithFormat(format string) *ResponseBuilder {
 	switch format {
-	case consts.FORMAT_JSON:
-	case consts.FORMAT_JSONP:
-	case consts.FORMAT_XML:
-	case consts.FORMAT_YAML:
+	case constant.FORMAT_JSON:
+	case constant.FORMAT_JSONP:
+	case constant.FORMAT_XML:
+	case constant.FORMAT_YAML:
 	default:
-		format = consts.FORMAT_JSON
+		format = constant.FORMAT_JSON
 	}
 	response.Format = format
 	return response

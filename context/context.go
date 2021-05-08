@@ -4,7 +4,6 @@ import (
 	"fmt"
 	"github.com/gin-gonic/gin"
 	"github.com/raylin666/go-gin-api/constant"
-	"github.com/raylin666/go-gin-api/consts"
 )
 
 // 上下文结构体
@@ -79,11 +78,11 @@ func (ctx *Context) handlerResponse() {
 	}
 
 	switch ctx.ResponseBuilder.Format {
-	case consts.FORMAT_XML:
+	case constant.FORMAT_XML:
 		ctx.builderResponseXML()
-	case consts.FORMAT_YAML:
+	case constant.FORMAT_YAML:
 		ctx.builderResponseYAML()
-	case consts.FORMAT_JSONP:
+	case constant.FORMAT_JSONP:
 		ctx.builderResponseJSONP()
 	default:
 		ctx.builderResponseJSON()

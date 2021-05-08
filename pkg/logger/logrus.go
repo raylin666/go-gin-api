@@ -1,11 +1,10 @@
 package logger
 
 import (
-	"github.com/raylin666/go-gin-api/consts"
-	"github.com/raylin666/go-gin-api/pkg/utils"
 	rotatelogs "github.com/lestrrat-go/file-rotatelogs"
 	"github.com/raylin666/go-gin-api/config"
 	"github.com/raylin666/go-gin-api/constant"
+	"github.com/raylin666/go-gin-api/pkg/utils"
 	"github.com/sirupsen/logrus"
 	"io"
 	"log"
@@ -15,54 +14,51 @@ import (
 )
 
 var (
-	c *conf
-	// 日志写入实例集合
-	loggerWriteMaps map[string]*Logger
+	WriteMaps map[string]*Logger
 )
 
 type H logrus.Fields
+
+func (data H) Fields() logrus.Fields {
+	return logrus.Fields(data)
+}
 
 type Logger struct {
 	// 日志实例
 	Instance *logrus.Logger
 	// 文件名称(文件写入时存在值)
 	FileName string
-	// 配置信息
-	Conf     *conf
-}
-
-type conf struct {
-	level  logrus.Level
-	format logrus.Formatter
+	// 日志级别
+	Level logrus.Level
+	// 日志格式
+	Format logrus.Formatter
 	// 是否并发写入文件及控制台打印
-	multi bool
-}
-
-func (data H) Fields() logrus.Fields {
-	return logrus.Fields(data)
+	Multi bool
 }
 
 func InitLogger() {
+	var logger *Logger
+
 	// 创建文件夹
 	utils.CreateDirectory(config.Get().Logs.Path)
 
-	c = &conf{}
-
 	// 注册日志写实例
-	register()
+	RegisterWriteMaps(map[string]*Logger{
+		constant.LOG_MULTI_APP: logger.instanceMulti(constant.LOG_MULTI_APP),
+		constant.LOG_APP:       logger.instance(constant.LOG_APP),
+		constant.LOG_DB:        logger.instance(constant.LOG_DB),
+		constant.LOG_REDIS:     logger.instance(constant.LOG_REDIS),
+		constant.LOG_REQUEST:   logger.instance(constant.LOG_REQUEST),
+		constant.LOG_SQL:   	logger.instance(constant.LOG_SQL),
+	})
 }
 
-func register() map[string]*Logger {
-	loggerWriteMaps = map[string]*Logger{
-		constant.LOG_MULTI_APP: instanceMulti(constant.LOG_MULTI_APP),
-		constant.LOG_APP:       instance(constant.LOG_APP),
-		constant.LOG_DB:        instance(constant.LOG_DB),
-		constant.LOG_REDIS:     instance(constant.LOG_REDIS),
-		constant.LOG_REQUEST:   instance(constant.LOG_REQUEST),
-		constant.LOG_SQL:   	instance(constant.LOG_SQL),
+// 注意: 该注册方法必须在服务启动前调用, 否则会有问题
+func RegisterWriteMaps(maps map[string]*Logger) map[string]*Logger {
+	for filename, logger := range maps {
+		WriteMaps[filename] = logger
 	}
-
-	return loggerWriteMaps
+	return WriteMaps
 }
 
 // 获取打印日志实例
@@ -77,49 +73,47 @@ func NewWrite(filename string) *logrus.Logger {
 		ok     bool
 	)
 
-	if logger, ok = loggerWriteMaps[filename]; !ok {
+	if logger, ok = WriteMaps[filename]; !ok {
 		return New()
 	}
 
 	return logger.Instance
 }
 
-func instance(filename string) *Logger {
-	return c.create(filename)
+func (logger *Logger) instance(filename string) *Logger {
+	logger.FileName = filename
+	return logger.create()
 }
 
-func instanceMulti(filename string) *Logger {
-	c.multi = true
-	return c.create(filename)
-}
-
-func (c *conf) reset()  {
-	c.multi = false
-	c.format = nil
-	c.level = 0
+func (logger *Logger) instanceMulti(filename string) *Logger {
+	logger.FileName = filename
+	logger.Multi = true
+	return logger.create()
 }
 
 // 创建 Logger 实例 初始化配置
-func (c *conf) create(filename string) *Logger {
-	logger := logrus.New()
+func (logger *Logger) create() *Logger {
+	defer logger.reset()
+
+	l := logrus.New()
 
 	// 设置日志级别
-	if c.level == 0 {
-		logger.SetLevel(logrus.DebugLevel)
+	if logger.Level == 0 {
+		l.SetLevel(logrus.DebugLevel)
 	} else {
-		logger.SetLevel(c.level)
+		l.SetLevel(logger.Level)
 	}
 
 	// 设置日志格式
-	if c.format == nil {
-		logger.SetFormatter(&logrus.JSONFormatter{
-			TimestampFormat: consts.TIMESTAMP_FORMAT,
+	if logger.Format == nil {
+		l.SetFormatter(&logrus.JSONFormatter{
+			TimestampFormat: constant.TIMESTAMP_FORMAT,
 		})
 	} else {
-		logger.SetFormatter(c.format)
+		l.SetFormatter(logger.Format)
 	}
 
-	file := path.Join(config.Get().Logs.Path, filename)
+	file := path.Join(config.Get().Logs.Path, logger.FileName)
 	// 设置 rotatelogs
 	logWriter, err := rotatelogs.New(
 		// 分割后的文件名称
@@ -133,22 +127,23 @@ func (c *conf) create(filename string) *Logger {
 	)
 
 	if err == nil {
-		if c.multi {
-			logger.SetOutput(io.MultiWriter(os.Stdout, logWriter))
+		if logger.Multi {
+			l.SetOutput(io.MultiWriter(os.Stdout, logWriter))
 		} else {
-			logger.SetOutput(logWriter)
+			l.SetOutput(logWriter)
 		}
 	} else {
-		log.Printf("(%s) failed to create rotatelogs: %s", filename, err)
+		log.Printf("(%s) failed to create rotatelogs: %s", logger.FileName, err)
 	}
 
-	new_logger := &Logger{
-		Instance: logger,
-		FileName: filename,
-		Conf:     c,
-	}
+	logger.Instance = l
 
-	c.reset()
+	return logger
+}
 
-	return new_logger
+func (logger *Logger) reset() {
+	logger.FileName = ""
+	logger.Multi = false
+	logger.Format = nil
+	logger.Level = 0
 }

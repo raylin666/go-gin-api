@@ -4,7 +4,7 @@ import (
 	"flag"
 	"fmt"
 	"github.com/raylin666/go-gin-api/config"
-	"github.com/raylin666/go-gin-api/consts"
+	"github.com/raylin666/go-gin-api/constant"
 	"strings"
 )
 
@@ -39,43 +39,43 @@ func (e *environment) Value() string {
 
 // 是否开发环境
 func (e *environment) IsDev() bool {
-	return e.value == consts.ENVIRONMENT_DEV
+	return e.value == constant.ENVIRONMENT_DEV
 }
 
 // 是否测试环境
 func (e *environment) IsTest() bool {
-	return e.value == consts.ENVIRONMENT_TEST
+	return e.value == constant.ENVIRONMENT_TEST
 }
 
 // 是否预发布环境
 func (e *environment) IsPre() bool {
-	return e.value == consts.ENVIRONMENT_PRE
+	return e.value == constant.ENVIRONMENT_PRE
 }
 
 // 是否生产环境
 func (e *environment) IsProd() bool {
-	return e.value == consts.ENVIRONMENT_PROD
+	return e.value == constant.ENVIRONMENT_PROD
 }
 
 // 初始化环境
 func InitEnvironment() {
 	// go run main.go -env=prod
-	env := flag.String("env", "", fmt.Sprintf("请输入运行环境:\n %s:开发环境\n %s:测试环境\n %s:预上线环境\n %s:正式环境\n", consts.ENVIRONMENT_DEV, consts.ENVIRONMENT_TEST, consts.ENVIRONMENT_PRE, consts.ENVIRONMENT_PROD))
+	env := flag.String("env", "", fmt.Sprintf("请输入运行环境:\n %s:开发环境\n %s:测试环境\n %s:预上线环境\n %s:正式环境\n", constant.ENVIRONMENT_DEV, constant.ENVIRONMENT_TEST, constant.ENVIRONMENT_PRE, constant.ENVIRONMENT_PROD))
 	flag.Parse()
 
 	switch strings.ToLower(strings.TrimSpace(*env)) {
-	case consts.ENVIRONMENT_DEV:
-		active = &environment{value: consts.ENVIRONMENT_DEV}
-	case consts.ENVIRONMENT_TEST:
-		active = &environment{value: consts.ENVIRONMENT_TEST}
-	case consts.ENVIRONMENT_PRE:
-		active = &environment{value: consts.ENVIRONMENT_PRE}
-	case consts.ENVIRONMENT_PROD:
-		active = &environment{value: consts.ENVIRONMENT_PROD}
+	case constant.ENVIRONMENT_DEV:
+		active = &environment{value: constant.ENVIRONMENT_DEV}
+	case constant.ENVIRONMENT_TEST:
+		active = &environment{value: constant.ENVIRONMENT_TEST}
+	case constant.ENVIRONMENT_PRE:
+		active = &environment{value: constant.ENVIRONMENT_PRE}
+	case constant.ENVIRONMENT_PROD:
+		active = &environment{value: constant.ENVIRONMENT_PROD}
 	default:
 		config_env := config.Get().Environment
-		if config_env == consts.ENVIRONMENT_DEV {
-			fmt.Println("Warning: '-" + consts.ENVIRONMENT_DEV + "' cannot be found, or it is illegal. The default '" + consts.ENVIRONMENT_DEV + "' will be used.")
+		if config_env == constant.ENVIRONMENT_DEV {
+			fmt.Println("Warning: '-" + constant.ENVIRONMENT_DEV + "' cannot be found, or it is illegal. The default '" + constant.ENVIRONMENT_DEV + "' will be used.")
 		}
 		active = &environment{value: config_env}
 	}

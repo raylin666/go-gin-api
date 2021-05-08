@@ -2,7 +2,7 @@ package router
 
 import (
 	"github.com/gin-gonic/gin"
-	"github.com/raylin666/go-gin-api/consts"
+	"github.com/raylin666/go-gin-api/constant"
 	"github.com/raylin666/go-gin-api/environment"
 )
 
@@ -15,11 +15,11 @@ type Router struct {
 func (r *Router) New() *gin.Engine {
 	var currentEnvironment = gin.ReleaseMode
 	switch environment.GetEnvironment().Value() {
-	case consts.ENVIRONMENT_PRE, consts.ENVIRONMENT_PROD:
+	case constant.ENVIRONMENT_PRE, constant.ENVIRONMENT_PROD:
 		currentEnvironment = gin.ReleaseMode
-	case consts.ENVIRONMENT_DEV:
+	case constant.ENVIRONMENT_DEV:
 		currentEnvironment = gin.DebugMode
-	case consts.ENVIRONMENT_TEST:
+	case constant.ENVIRONMENT_TEST:
 		currentEnvironment = gin.TestMode
 	default:
 	}
