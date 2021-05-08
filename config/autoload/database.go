@@ -14,4 +14,5 @@ type Database struct {
 	MaxIdleConn int           `yaml:"MaxIdleConn"`
 	MaxOpenConn int           `yaml:"MaxOpenConn"`
 	MaxLifeTime time.Duration `yaml:"MaxLifeTime"`
+	OpenPlugin  bool		  `yaml:"OpenPlugin"`
 }

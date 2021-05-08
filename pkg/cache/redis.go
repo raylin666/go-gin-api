@@ -1,0 +1,64 @@
+package cache
+
+import (
+	"context"
+	"fmt"
+	"github.com/go-redis/redis/v8"
+	"github.com/raylin666/go-gin-api/config"
+	"strings"
+)
+
+var (
+	rds = new(Redis)
+)
+
+type Redis struct {
+	Map map[string]*redis.Client
+}
+
+func InitRedis() {
+	conf := config.Get().Redis
+	rds.Map = make(map[string]*redis.Client, len(conf))
+
+	for key, value := range conf {
+		conn := redis.NewClient(&redis.Options{
+			Addr:         fmt.Sprintf("%s:%d", value.Addr, value.Port),
+			Password:     value.Password,
+			DB:           value.Db,
+			MaxRetries:   value.MaxRetries,   // 最大的重试次数
+			PoolSize:     value.PoolSize,     // 连接池最大连接数，默认为 CPU 数 * 10
+			PoolTimeout:  value.PoolTimeout,  // 连接池超时时间
+			MinIdleConns: value.MinIdleConns, // 最小空闲连接数
+			IdleTimeout:  value.IdleTimeout,  // 空闲连接超时时间
+			DialTimeout:  value.DialTimeout,  // 建立连接超时时间
+			ReadTimeout:  value.ReadTimeout,  // 读超时时间
+			WriteTimeout: value.WriteTimeout, // 写超时时间
+		})
+
+		_, err := conn.Ping(context.Background()).Result()
+		if err == nil {
+			rds.Map[strings.ToLower(key)] = conn
+		}
+	}
+}
+
+// 获取链接
+func GetRedis(connection string) *redis.Client {
+	return rds.Map[connection]
+}
+
+// 关闭链接
+func Close(connection string) error {
+	return rds.Map[connection].Close()
+}
+
+// 关闭所有链接
+func CloseAll() error {
+	for _, client := range rds.Map {
+		if err := client.Close(); err != nil {
+			return err
+		}
+	}
+
+	return nil
+}
