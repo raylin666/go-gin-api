@@ -1,4 +1,4 @@
-package init
+package initx
 
 import (
 	"github.com/raylin666/go-gin-api/config"
@@ -11,7 +11,7 @@ type Config struct {
 }
 
 // 初始化应用
-func (c *Config) InitApplication() {
+func InitApplication(c *Config) {
 	// 初始化加载配置文件
 	config.InitAutoloadConfig(c.YmlEnvFileName)
 	// 初始化环境

@@ -4,7 +4,7 @@ import (
 	"flag"
 	"fmt"
 	"github.com/raylin666/go-gin-api/config"
-	"github.com/raylin666/go-gin-api/internal/consts"
+	"github.com/raylin666/go-gin-api/consts"
 	"strings"
 )
 

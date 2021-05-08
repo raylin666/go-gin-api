@@ -3,8 +3,8 @@ package context
 import (
 	"fmt"
 	"github.com/gin-gonic/gin"
-	"github.com/raylin666/go-gin-api/internal/consts"
-	"github.com/raylin666/go-gin-api/internal/constant"
+	"github.com/raylin666/go-gin-api/constant"
+	"github.com/raylin666/go-gin-api/consts"
 )
 
 // 上下文结构体
@@ -43,9 +43,17 @@ func ContextHandler(handler ContextHandlerFunc) gin.HandlerFunc {
 	}
 }
 
-// API 响应信息
-func (ctx *Context) Response()  {
-	// 处理响应数据包内容
+// API 成功响应
+func (ctx *Context) Success(data H) {
+	ctx.ResponseBuilder.WithCode(constant.StatusOK)
+	ctx.ResponseBuilder.WithData(data)
+	ctx.handlerResponse()
+}
+
+// API 失败响应
+func (ctx *Context) Error(code int) {
+	ctx.ResponseBuilder.WithCode(code)
+	ctx.ResponseBuilder.WithData(H{})
 	ctx.handlerResponse()
 }
 
@@ -83,18 +91,18 @@ func (ctx *Context) handlerResponse() {
 }
 
 func (ctx *Context) builderResponseJSON() {
-	ctx.Context.JSON(ctx.ResponseBuilder.Code, ctx.ResponseBuilder.Data)
+	ctx.Context.JSON(ctx.ResponseBuilder.HttpCode, ctx.ResponseBuilder.Data)
 }
 
 func (ctx *Context) builderResponseXML() {
-	ctx.Context.XML(ctx.ResponseBuilder.Code, ctx.ResponseBuilder.Data)
+	ctx.Context.XML(ctx.ResponseBuilder.HttpCode, ctx.ResponseBuilder.Data)
 }
 
 func (ctx *Context) builderResponseYAML() {
-	ctx.Context.YAML(ctx.ResponseBuilder.Code, ctx.ResponseBuilder.Data)
+	ctx.Context.YAML(ctx.ResponseBuilder.HttpCode, ctx.ResponseBuilder.Data)
 }
 
 func (ctx *Context) builderResponseJSONP() {
-	ctx.Context.JSONP(ctx.ResponseBuilder.Code, ctx.ResponseBuilder.Data)
+	ctx.Context.JSONP(ctx.ResponseBuilder.HttpCode, ctx.ResponseBuilder.Data)
 }
 

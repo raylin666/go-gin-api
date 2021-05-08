@@ -2,8 +2,8 @@ package context
 
 import (
 	"encoding/xml"
-	"github.com/raylin666/go-gin-api/internal/consts"
-	"github.com/raylin666/go-gin-api/internal/constant"
+	"github.com/raylin666/go-gin-api/constant"
+	"github.com/raylin666/go-gin-api/consts"
 	"time"
 )
 
@@ -48,59 +48,67 @@ func (h H) MarshalXML(e *xml.Encoder, start xml.StartElement) error {
 	return e.EncodeToken(xml.EndElement{Name: start.Name})
 }
 
-func (response *ResponseBuilder) WithHttpCode(code int) {
-	if response.HttpCode == 0 {
+func (response *ResponseBuilder) WithHttpCode(code int) *ResponseBuilder {
+	if code == 0 {
 		response.HttpCode = constant.StatusOK
 	} else {
 		response.HttpCode = code
 	}
+
+	return response
 }
 
 func (response *ResponseBuilder) GetHttpCode() int {
 	return response.HttpCode
 }
 
-func (response *ResponseBuilder) WithCode(code int) {
-	if response.Code == 0 {
+func (response *ResponseBuilder) WithCode(code int) *ResponseBuilder {
+	if code == 0 {
 		response.Code = constant.StatusOK
 	} else {
 		response.Code = code
 	}
+
+	return response
 }
 
 func (response *ResponseBuilder) GetCode() int {
 	return response.Code
 }
 
-func (response *ResponseBuilder) WithMessage(message string) {
-	if response.Message == "" {
+func (response *ResponseBuilder) WithMessage(message string) *ResponseBuilder {
+	if message == "" {
 		response.Message = constant.GetStatusText(response.Code)
 	} else {
 		response.Message = message
 	}
+
+	return response
 }
 
 func (response *ResponseBuilder) GetMessage() string {
 	return response.Message
 }
 
-func (response *ResponseBuilder) WithData(data H) {
+func (response *ResponseBuilder) WithData(data H) *ResponseBuilder {
 	response.Data = data
+	return response
 }
 
 func (response *ResponseBuilder) GetData() H {
 	return response.Data
 }
 
-func (response *ResponseBuilder) WithResponseTime(duration time.Duration) {
+func (response *ResponseBuilder) WithResponseTime(duration time.Duration) *ResponseBuilder {
 	response.ResponseTime = duration
+	return response
 }
 
 func (response *ResponseBuilder) GetResponseTime() time.Duration {
 	return response.ResponseTime
 }
 
-func (response *ResponseBuilder) WithFormat(format string) {
+func (response *ResponseBuilder) WithFormat(format string) *ResponseBuilder {
 	switch format {
 	case consts.FORMAT_JSON:
 	case consts.FORMAT_JSONP:
@@ -110,6 +118,7 @@ func (response *ResponseBuilder) WithFormat(format string) {
 		format = consts.FORMAT_JSON
 	}
 	response.Format = format
+	return response
 }
 
 func (response *ResponseBuilder) GetFormat() string {
