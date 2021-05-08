@@ -37,7 +37,9 @@ type Logger struct {
 }
 
 func InitLogger() {
-	var logger *Logger
+	var logger Logger
+
+	WriteMaps = make(map[string]*Logger)
 
 	// 创建文件夹
 	utils.CreateDirectory(config.Get().Logs.Path)
@@ -80,21 +82,19 @@ func NewWrite(filename string) *logrus.Logger {
 	return logger.Instance
 }
 
-func (logger *Logger) instance(filename string) *Logger {
+func (logger Logger) instance(filename string) *Logger {
 	logger.FileName = filename
 	return logger.create()
 }
 
-func (logger *Logger) instanceMulti(filename string) *Logger {
+func (logger Logger) instanceMulti(filename string) *Logger {
 	logger.FileName = filename
 	logger.Multi = true
 	return logger.create()
 }
 
 // 创建 Logger 实例 初始化配置
-func (logger *Logger) create() *Logger {
-	defer logger.reset()
-
+func (logger Logger) create() *Logger {
 	l := logrus.New()
 
 	// 设置日志级别
@@ -138,12 +138,6 @@ func (logger *Logger) create() *Logger {
 
 	logger.Instance = l
 
-	return logger
+	return &logger
 }
 
-func (logger *Logger) reset() {
-	logger.FileName = ""
-	logger.Multi = false
-	logger.Format = nil
-	logger.Level = 0
-}
