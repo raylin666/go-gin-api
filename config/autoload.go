@@ -1,8 +1,8 @@
 package config
 
 import (
-	"github.com/raylin666/go-gin-api/config/autoload"
-	"gopkg.in/yaml.v2"
+	"go-gin-api/config/autoload"
+	"gopkg.in/yaml.v3"
 	"io/ioutil"
 )
 
@@ -14,13 +14,13 @@ type Config struct {
 	Http        autoload.Http                `yaml:"Http"`
 	Database    map[string]autoload.Database `yaml:"Database"`
 	Redis       map[string]autoload.Redis	 `yaml:"Redis"`
-	Jwt 		autoload.Jwt			     `yaml:"Jwt"`
+	Jwt         autoload.Jwt				 `yaml:"Jwt"`
 	Logs 		autoload.Logs				 `yaml:"Logs"`
 }
 
-// 初始化加载配置文件, ymlEnvFileName 文件可复制该扩展包根目录的 .env.yml.default 文件进行修改, 它包含了所有配置项。
-func InitAutoloadConfig(ymlEnvFileName string)  {
-	cYaml, err := ioutil.ReadFile(ymlEnvFileName)
+// 初始化加载配置文件
+func InitAutoloadConfig(envFileName string)  {
+	cYaml, err := ioutil.ReadFile(envFileName)
 	if err != nil {
 		panic(err)
 	}

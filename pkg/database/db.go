@@ -1,90 +1,66 @@
 package database
 
 import (
-	"fmt"
-	"github.com/raylin666/go-gin-api/config"
-	"gorm.io/driver/mysql"
+	"github.com/raylin666/go-utils/database"
+	"github.com/raylin666/go-utils/logger"
+	"go-gin-api/config"
+	"go-gin-api/internal/constant"
 	"gorm.io/gorm"
-	"gorm.io/gorm/schema"
-	"strings"
+	"gorm.io/gorm/utils"
 	"time"
 )
 
-var (
-	db = new(Database)
-)
-
-type Database struct {
-	Map map[string]*gorm.DB
-}
-
-func InitDB() {
+func InitDatabase() {
 	var (
-		err  error
-		conn *gorm.DB
+		c  map[string]*database.DatabaseConfig
+		cr = config.Get().Database
 	)
 
-	conf := config.Get().Database
-	db.Map = make(map[string]*gorm.DB, len(conf))
+	c = make(map[string]*database.DatabaseConfig, len(cr))
 
-	for key, value := range conf {
-		var dsn = fmt.Sprintf("%s:%s@tcp(%s:%d)/%s?charset=%s&parseTime=True&loc=Local",
-			value.UserName,
-			value.Password,
-			value.Host,
-			value.Port,
-			value.DbName,
-			value.Charset)
-
-		conn, err = gorm.Open(
-			mysql.Open(dsn),
-			&gorm.Config{
-				NamingStrategy: schema.NamingStrategy{
-					TablePrefix:   value.Prefix, // 设置表前缀
-					SingularTable: true,         // 全局禁用表名复数
-				},
-			})
-
-		if err != nil {
-			panic(err)
+	for key, value := range cr {
+		rc := &database.DatabaseConfig{
+			Driver:      value.Driver,
+			DbName:      value.DbName,
+			Host:        value.Host,
+			UserName:    value.UserName,
+			Password:    value.Password,
+			Charset:     value.Charset,
+			Port:        value.Port,
+			Prefix:      value.Prefix,
+			MaxIdleConn: value.MaxIdleConn,
+			MaxOpenConn: value.MaxOpenConn,
+			MaxLifeTime: value.MaxLifeTime,
+			ParseTime:   value.ParseTime,
+			Loc:         value.Loc,
+			OpenPlugin:  value.OpenPlugin,
 		}
-
-		sqlDb, _ := conn.DB()
-		// 设置最大连接数 用于设置闲置的连接数.设置闲置的连接数则当开启的一个连接使用完成后可以放在池里等候下一次使用。
-		sqlDb.SetMaxIdleConns(value.MaxIdleConn)
-		// 设置连接池 用于设置最大打开的连接数，默认值为0表示不限制.设置最大的连接数，可以避免并发太高导致连接mysql出现too many connections的错误。
-		sqlDb.SetMaxOpenConns(value.MaxOpenConn)
-		// 设置最大连接超时
-		sqlDb.SetConnMaxLifetime(time.Minute * value.MaxLifeTime)
-
-		if value.OpenPlugin {
-			// 使用插件
-			_ = conn.Use(&TracePlugin{})
-		}
-
-		db.Map[strings.ToLower(key)] = conn
+		c[key] = rc
 	}
+
+	database.InitDatabase(c, &database.PluginConfig{
+		After: func(gormDb *gorm.DB, sql string, ts time.Time) {
+			logger.NewWrite(constant.LogSql).WithFields(logger.H{
+				"query":       sql,
+				"rows":        gormDb.Statement.RowsAffected,
+				"stack":       utils.FileWithLineNum(),
+				"costSeconds": time.Since(ts).Seconds(),
+			}.Fields()).Info()
+		},
+	})
 }
 
 // 获取链接
-func GetDB(connection string) *gorm.DB {
-	return db.Map[connection]
+func GetDB(connection string) *database.Database {
+	return database.GetDB(connection)
 }
 
 // 关闭链接
 func Close(connection string) error {
-	sqlDb, _ := db.Map[connection].DB()
-	return sqlDb.Close()
+	return database.Close(connection)
 }
 
 // 关闭所有链接
 func CloseAll() error {
-	for _, connection := range db.Map {
-		sqlDb, _ := connection.DB()
-		if err := sqlDb.Close(); err != nil {
-			return err
-		}
-	}
-
-	return nil
+	return database.CloseAll()
 }

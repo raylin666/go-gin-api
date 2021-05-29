@@ -1,5 +1,6 @@
 package autoload
 
 type App struct {
-	Name string `yaml:"Name"`
+	Name    string `yaml:"Name"`
+	Version string `yaml:"Version"`
 }

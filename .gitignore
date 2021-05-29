@@ -1,5 +1,5 @@
 .idea
+.DS_Store
+.git
 .env.yml
-runtime
-debug
-bin
+/runtime
