@@ -4,7 +4,7 @@
 
 ### 热编译
 
-    如果你想在测试时候不每次都执行 <code>go run main.go</code> 。可以安装 <code>gowatch</code>, 然后项目根目录下运行 <code>gowatch</code> 命令就可以了。
+如果你想在测试时候不每次都执行 <code>go run main.go</code> 。可以安装 <code>gowatch</code>, 然后项目根目录下运行 <code>gowatch</code> 命令就可以了。
 
 安装 <code>gowatch</code>:
 ```shell

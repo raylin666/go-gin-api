@@ -11,6 +11,10 @@ import (
 
 // 请求数据验证
 func (ctx *Context) RequestValidate(validate interface{}) bool {
+	if validate == nil {
+		return true
+	}
+
 	// 注册翻译器
 	uni := ut.New(zh.New())
 	trans, _ := uni.GetTranslator("zh")

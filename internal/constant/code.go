@@ -76,6 +76,7 @@ const (
 		公共状态码
 	 */
 	StatusBsValidationHandleError 		= 10001
+	StatusParamsParseError				= 10002
 )
 
 var StatusText = map[int]string{
@@ -147,6 +148,7 @@ var StatusText = map[int]string{
 	StatusNetworkAuthenticationRequired: "Network Authentication Required",
 
 	StatusBsValidationHandleError: 		 "Validation processing error",
+	StatusParamsParseError:				 "Parameter parsing error",
 }
 
 // StatusText returns a text for the HTTP status code. It returns the empty
