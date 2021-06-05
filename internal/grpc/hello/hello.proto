@@ -1,0 +1,20 @@
+syntax = "proto3";
+
+package hello;
+
+option go_package = "./rpc/client";
+
+// 获取 Speak 请求参数
+message GetSpeakRequest {
+  string content = 1;
+}
+
+// 获取 Speak 接口返回值
+message GetSpeakResponse {
+  string message = 1;
+}
+
+service Hello {
+  // 获取系统信息接口
+  rpc GetSpeak(GetSpeakRequest) returns(GetSpeakResponse);
+}
