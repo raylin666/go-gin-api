@@ -5,6 +5,7 @@ import (
 	"github.com/gin-gonic/gin"
 	"go-gin-api/internal/constant"
 	"go-gin-api/internal/context"
+	"go-gin-api/internal/model"
 	"time"
 )
 
@@ -18,7 +19,9 @@ type Context struct {
 	// 响应数据包内容
 	ResponseBuilder ResponseBuilder
 
-	Model struct{}
+	Model struct {
+		KeywordTests *model.KeywordTestsModel
+	}
 }
 
 // 上下文处理函数
@@ -43,6 +46,9 @@ func ContextHandler(handler ContextHandlerFunc) gin.HandlerFunc {
 		if authorization, ok := ctx.Keys["Authorization"]; ok {
 			srvCtx.Authorization = authorization.(string)
 		}
+
+		srvCtx.Model.KeywordTests = model.NewKeywordTestsModel()
+
 		handler(srvCtx)
 	})
 }

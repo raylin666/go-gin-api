@@ -51,8 +51,8 @@ func InitDatabase() {
 }
 
 // 获取链接
-func GetDB(connection string) *database.Database {
-	return database.GetDB(connection)
+func Get(connection string) *database.Database {
+	return database.Get(connection)
 }
 
 // 关闭链接

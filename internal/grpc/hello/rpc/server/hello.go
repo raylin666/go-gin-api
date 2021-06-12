@@ -18,6 +18,6 @@ func NewHelloServer(ctx *svc.Context) *HelloServer {
 }
 
 func (serv *HelloServer) GetSpeak(ctx context.Context, req *client.GetSpeakRequest) (*client.GetSpeakResponse, error) {
-	l := logic.NewHelloLogic(ctx)
+	l := logic.NewHelloLogic(ctx, serv.svcCtx)
 	return l.GetSpeak(req)
 }

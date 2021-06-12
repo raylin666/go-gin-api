@@ -18,7 +18,15 @@ func NewHelloLogic(ctx *context.Context) *HelloLogic {
 
 // Hello GO.
 func (l *HelloLogic) HelloLogic(req params.HelloReq) (*params.HelloResp, *utils.Error) {
+	var message string
+	res_content := l.ctx.Model.KeywordTests.GetFirst(req.KeyWord)
+	if res_content.Keyword == "" {
+		message = "没有查询到数据哦 ~"
+	} else {
+		message = res_content.ResContent
+	}
+
 	return &params.HelloResp{
-		Message: req.KeyWord + ", Hello GO.",
+		Message: message,
 	}, nil
 }

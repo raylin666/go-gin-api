@@ -40,11 +40,11 @@ func GetRedis(connection string) *cache.Redis {
 }
 
 // 关闭链接
-func Close(connection string) error {
-	return cache.Close(connection)
+func CloseRedis(connection string) error {
+	return cache.CloseRedis(connection)
 }
 
 // 关闭所有链接
-func CloseAll() error {
-	return cache.CloseAll()
+func CloseAllRedis() error {
+	return cache.CloseAllRedis()
 }

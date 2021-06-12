@@ -24,11 +24,11 @@ func main() {
 		return
 	}
 
-	s := grpc.NewServer() // 创建 GRPC 服务器
+	s := grpc.NewServer() // 创建 gRPC 服务器
 	c := svc.NewContext() // 创建服务器上下文切换
-	client.RegisterHelloServer(s, server.NewHelloServer(c))	// 在 GRPC 服务端注册服务
+	client.RegisterHelloServer(s, server.NewHelloServer(c))	// 在 gRPC 服务端注册服务
 
-	reflection.Register(s) // 在给定的 GRPC 服务器上注册服务器反射服务
+	reflection.Register(s) // 在给定的 gRPC 服务器上注册服务器反射服务
 
 	fmt.Printf("success to serve, listen: %s:%d\n", Host, Port)
 
