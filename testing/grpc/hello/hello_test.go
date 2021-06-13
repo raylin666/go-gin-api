@@ -7,7 +7,7 @@ import (
 	"context"
 )
 
-func TestGetSpeak(t *testing.T) {
+func TestGrpcClientToGetSpeak(t *testing.T) {
 	conn, err := grpc.Dial(":11000", grpc.WithInsecure())
 	if err != nil {
 		t.Error("did not connect", err)
