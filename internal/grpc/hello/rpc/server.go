@@ -2,9 +2,11 @@ package main
 
 import (
 	"fmt"
+	"go-gin-api/internal/constant"
 	"go-gin-api/internal/grpc/hello/rpc/client"
 	"go-gin-api/internal/grpc/hello/rpc/server"
 	"go-gin-api/internal/grpc/hello/rpc/svc"
+	"go-gin-api/internal/initx"
 	"google.golang.org/grpc"
 	"google.golang.org/grpc/reflection"
 	"net"
@@ -15,6 +17,10 @@ const (
 	Host = "127.0.0.1"
 	Port = 11000
 )
+
+func init()  {
+	initx.NewInitApp(fmt.Sprintf("%s/%s", "../../../../", constant.EnvFileName)).Run()
+}
 
 func main() {
 	// 监听本地的 11000 端口

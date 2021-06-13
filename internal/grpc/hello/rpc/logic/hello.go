@@ -20,11 +20,11 @@ func NewHelloLogic(ctx context.Context, svcCtx *svc.Context) *HelloLogic {
 
 func (l *HelloLogic) GetSpeak(req *client.GetSpeakRequest) (*client.GetSpeakResponse, error) {
 	var message string
-	res_content := l.svcCtx.Model.KeywordTest.GetFirst(req.Content)
-	if res_content.Keyword == "" {
+	keyword_test := l.svcCtx.Model.KeywordTest.GetFirst(req.Content)
+	if keyword_test.Keyword == "" {
 		message = "没有查询到数据哦 ~"
 	} else {
-		message = res_content.ResContent
+		message = keyword_test.ResContent
 	}
 
 	return &client.GetSpeakResponse{
